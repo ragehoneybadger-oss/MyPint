@@ -519,11 +519,11 @@
         img.crossOrigin = "anonymous";
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
+          const ctx = canvas.getContext('2d', { colorSpace: 'srgb' });
           canvas.width = 480;
           canvas.height = 270;
           ctx.drawImage(img, 0, 45, 480, 270, 0, 0, 480, 270);
-          resolve(canvas.toDataURL('image/jpeg', 0.95));
+          resolve(canvas.toDataURL('image/jpeg', 0.90));
         };
         img.onerror = () => resolve(srcUrl);
         img.src = srcUrl;
@@ -560,6 +560,7 @@
         };
 
         const testImg = new Image();
+        testImg.crossOrigin = "anonymous";
         testImg.onload = async function () {
           if (chosenRes === 'maxresdefault' && this.width <= 120) {
             const croppedDataUrl = await cropLetterboxImage(hqResUrl);
@@ -645,44 +646,60 @@
     }
 
     function getPaddedCanvasBlob(imgElement, ratio) {
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
+        // Explicit sRGB color space to prevent Pinterest image metadata errors
         const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d', { colorSpace: 'srgb' });
         
-        const sourceWidth = imgElement.naturalWidth;
-        const sourceHeight = imgElement.naturalHeight;
-
-        const canvasWidth = sourceWidth;
+        // Standardize dimensions so Pinterest's CND can process the pin cleanly
+        const targetWidth = Math.min(imgElement.naturalWidth || 1280, 1000);
         const isSquare = ratio === '1:1' || ratio === '1:1-blur';
-        const canvasHeight = isSquare ? sourceWidth : sourceWidth * (3 / 2);
+        const targetHeight = isSquare ? targetWidth : Math.round(targetWidth * (3 / 2));
 
-        canvas.width = canvasWidth;
-        canvas.height = canvasHeight;
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+
+        const sourceWidth = imgElement.naturalWidth || 1280;
+        const sourceHeight = imgElement.naturalHeight || 720;
 
         const isWhitePad = ratio === '1:1' || ratio === '2:3-white';
 
         if (isWhitePad) {
           ctx.fillStyle = '#ffffff';
-          ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+          ctx.fillRect(0, 0, targetWidth, targetHeight);
         } else {
+          // Blurred background padding
           ctx.save();
-          ctx.filter = 'blur(40px)';
-          const bgScale = Math.max(canvasWidth / sourceWidth, canvasHeight / sourceHeight);
+          ctx.filter = 'blur(30px)';
+          const bgScale = Math.max(targetWidth / sourceWidth, targetHeight / sourceHeight);
           const bgWidth = sourceWidth * bgScale;
           const bgHeight = sourceHeight * bgScale;
-          const bgX = (canvasWidth - bgWidth) / 2;
-          const bgY = (canvasHeight - bgHeight) / 2;
+          const bgX = (targetWidth - bgWidth) / 2;
+          const bgY = (targetHeight - bgHeight) / 2;
           ctx.drawImage(imgElement, bgX, bgY, bgWidth, bgHeight);
           ctx.restore();
 
           ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
-          ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+          ctx.fillRect(0, 0, targetWidth, targetHeight);
         }
 
-        const destY = (canvasHeight - sourceHeight) / 2;
-        ctx.drawImage(imgElement, 0, destY, sourceWidth, sourceHeight);
+        // Draw centered main thumbnail
+        const renderHeight = Math.round(targetWidth * (sourceHeight / sourceWidth));
+        const destY = Math.round((targetHeight - renderHeight) / 2);
+        ctx.drawImage(imgElement, 0, destY, targetWidth, renderHeight);
 
-        canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.95);
+        // Standardized 0.90 JPEG export for max compatibility on social networks
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error("Canvas blob generation failed"));
+            }
+          },
+          'image/jpeg',
+          0.90
+        );
       });
     }
 
