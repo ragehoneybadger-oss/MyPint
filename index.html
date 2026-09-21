@@ -36,20 +36,6 @@
       width: 100%;
     }
 
-    .sec1-input {
-      flex: 1;
-      padding: 12px 16px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .sec1-input:focus {
-      border-color: #ff0000;
-    }
-
     .error {
       color: #d93025;
       font-size: 14px;
@@ -374,7 +360,6 @@
 <body>
 
   <div class="wrapper">
-    <!-- Hidden input to bridge section 1 thumbnail script -->
     <input type="hidden" id="youtubeUrl" />
     <input type="hidden" id="sec1Title" />
     <div id="errorMessage" style="display:none;"></div>
@@ -417,6 +402,25 @@
             <button class="action-icon-btn" id="btnTranslateDesc" onclick="translateText('videoDescription', this)" title="Translate Description to English">
               <svg viewBox="0 0 24 24"><path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2.1l1.1-3h4.6l1.1 3H23l-4.5-12zm-2.62 7l1.62-4.41L19.12 17h-3.24z"/></svg>
             </button>
+          </div>
+        </div>
+
+        <!-- Resolution Radio Controls -->
+        <div class="controls-bar">
+          <span style="font-weight: 600; font-size: 14px;">Resolution Quality:</span>
+          <div class="ratio-options">
+            <label>
+              <input type="radio" name="resQuality" value="maxresdefault" checked onchange="generateThumbnail()" />
+              Max Resolution
+            </label>
+            <label>
+              <input type="radio" name="resQuality" value="hqdefault" onchange="generateThumbnail()" />
+              High Quality
+            </label>
+            <label>
+              <input type="radio" name="resQuality" value="mqdefault" onchange="generateThumbnail()" />
+              Medium Quality
+            </label>
           </div>
         </div>
 
@@ -487,7 +491,7 @@
 
   <div id="toast" class="toast-banner"><mark id="toastText">copied</mark></div>
 
-  <!-- SCRIPT SECTION 1 (pintonly untouched) -->
+  <!-- SCRIPT SECTION 1 -->
   <script>
     let currentImageUrl = '';
     let currentVideoId = '';
@@ -535,11 +539,14 @@
       const blurBgImg = document.getElementById('blurBgImg');
       const imageLink = document.getElementById('imageLink');
       const externalIconLink = document.getElementById('externalIconLink');
+      
+      const chosenResElem = document.querySelector('input[name="resQuality"]:checked');
+      const chosenRes = chosenResElem ? chosenResElem.value : 'maxresdefault';
 
       currentVideoId = extractVideoID(urlInput);
 
       if (currentVideoId) {
-        const maxResUrl = `https://img.youtube.com/vi/${currentVideoId}/maxresdefault.jpg`;
+        const targetResUrl = `https://img.youtube.com/vi/${currentVideoId}/${chosenRes}.jpg`;
         const hqResUrl = `https://img.youtube.com/vi/${currentVideoId}/hqdefault.jpg`;
 
         const setThumbnailSources = (url, displayUrl = url, isCropped = false) => {
@@ -554,18 +561,21 @@
 
         const testImg = new Image();
         testImg.onload = async function () {
-          if (this.width <= 120) {
+          if (chosenRes === 'maxresdefault' && this.width <= 120) {
+            const croppedDataUrl = await cropLetterboxImage(hqResUrl);
+            setThumbnailSources(croppedDataUrl, hqResUrl, true);
+          } else if (chosenRes === 'hqdefault') {
             const croppedDataUrl = await cropLetterboxImage(hqResUrl);
             setThumbnailSources(croppedDataUrl, hqResUrl, true);
           } else {
-            setThumbnailSources(maxResUrl, maxResUrl, false);
+            setThumbnailSources(targetResUrl, targetResUrl, false);
           }
         };
         testImg.onerror = async function () {
           const croppedDataUrl = await cropLetterboxImage(hqResUrl);
           setThumbnailSources(croppedDataUrl, hqResUrl, true);
         };
-        testImg.src = maxResUrl;
+        testImg.src = targetResUrl;
 
         let titleText = "YouTube Video";
 
@@ -724,16 +734,9 @@
         a.click();
       }
     }
-
-    function copyText(elementId) {
-      const element = document.getElementById(elementId);
-      element.select();
-      navigator.clipboard.writeText(element.value);
-      showToast();
-    }
   </script>
 
-  <!-- SCRIPT SECTION 2 (Merged from Desc.html) -->
+  <!-- SCRIPT SECTION 2 -->
   <script>
     const API_KEY = "AIzaSyDs-o3KOi5UiOtxINGyPqp_3LAngkJLcW0";
 
@@ -822,7 +825,6 @@
       errorMessage.style.display = 'none';
       resultsContainer.style.display = 'none';
 
-      // Link input to generateThumbnail script
       document.getElementById('youtubeUrl').value = urlInput;
       if (typeof generateThumbnail === 'function') {
         generateThumbnail();
