@@ -121,6 +121,38 @@
       fill: currentColor;
     }
 
+    /* Fixed Bottom-Right Reset Button */
+    .reset-floating-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background-color: #333333;
+      color: #ffffff;
+      border: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+      z-index: 999;
+    }
+
+    .reset-floating-btn:hover {
+      background-color: #ff0000;
+      transform: scale(1.08) rotate(-45deg);
+      box-shadow: 0 6px 16px rgba(255, 0, 0, 0.35);
+    }
+
+    .reset-floating-btn svg {
+      width: 22px;
+      height: 22px;
+      fill: currentColor;
+    }
+
     .preview-container {
       display: flex;
       justify-content: center;
@@ -241,7 +273,7 @@
     .toast-banner {
       position: fixed;
       bottom: 20px;
-      right: 20px;
+      left: 20px;
       background-color: #323232;
       color: #ffffff;
       padding: 10px 18px;
@@ -491,6 +523,13 @@
 
   <div id="toast" class="toast-banner"><mark id="toastText">copied</mark></div>
 
+  <!-- Floating Reset Button -->
+  <button class="reset-floating-btn" onclick="resetForm()" title="Reset All Form Data">
+    <svg viewBox="0 0 24 24">
+      <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+    </svg>
+  </button>
+
   <!-- SCRIPT SECTION 1 -->
   <script>
     let currentImageUrl = '';
@@ -647,11 +686,9 @@
 
     function getPaddedCanvasBlob(imgElement, ratio) {
       return new Promise((resolve, reject) => {
-        // Explicit sRGB color space to prevent Pinterest image metadata errors
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d', { colorSpace: 'srgb' });
         
-        // Standardize dimensions so Pinterest's CND can process the pin cleanly
         const targetWidth = Math.min(imgElement.naturalWidth || 1280, 1000);
         const isSquare = ratio === '1:1' || ratio === '1:1-blur';
         const targetHeight = isSquare ? targetWidth : Math.round(targetWidth * (3 / 2));
@@ -668,7 +705,6 @@
           ctx.fillStyle = '#ffffff';
           ctx.fillRect(0, 0, targetWidth, targetHeight);
         } else {
-          // Blurred background padding
           ctx.save();
           ctx.filter = 'blur(30px)';
           const bgScale = Math.max(targetWidth / sourceWidth, targetHeight / sourceHeight);
@@ -683,12 +719,10 @@
           ctx.fillRect(0, 0, targetWidth, targetHeight);
         }
 
-        // Draw centered main thumbnail
         const renderHeight = Math.round(targetWidth * (sourceHeight / sourceWidth));
         const destY = Math.round((targetHeight - renderHeight) / 2);
         ctx.drawImage(imgElement, 0, destY, targetWidth, renderHeight);
 
-        // Standardized 0.90 JPEG export for max compatibility on social networks
         canvas.toBlob(
           (blob) => {
             if (blob) {
@@ -750,6 +784,41 @@
         a.download = filename;
         a.click();
       }
+    }
+
+    function resetForm() {
+      // Clear Input Fields
+      document.getElementById('descYoutubeUrl').value = '';
+      document.getElementById('youtubeUrl').value = '';
+      document.getElementById('sec1Title').value = '';
+      document.getElementById('videoTitleInput').value = '';
+      document.getElementById('videoDescription').textContent = '';
+      document.getElementById('imageUrlText').textContent = '';
+
+      // Clear Images
+      document.getElementById('thumbnailImg').src = '';
+      document.getElementById('blurBgImg').src = '';
+      document.getElementById('externalIconLink').href = '';
+      document.getElementById('imageLink').href = '';
+
+      // Reset State Variables
+      currentImageUrl = '';
+      currentVideoId = '';
+      isCroppedImage = false;
+
+      // Reset Radio Buttons to Defaults
+      const resQualityMax = document.querySelector('input[name="resQuality"][value="maxresdefault"]');
+      if (resQualityMax) resQualityMax.checked = true;
+
+      const aspect11Blur = document.querySelector('input[name="aspectRatio"][value="1:1-blur"]');
+      if (aspect11Blur) aspect11Blur.checked = true;
+
+      // Hide Results and Error Containers
+      document.getElementById('resultsContainer').style.display = 'none';
+      document.getElementById('descErrorMessage').style.display = 'none';
+      document.getElementById('errorMessage').style.display = 'none';
+
+      showToastMsg("Form reset");
     }
   </script>
 
