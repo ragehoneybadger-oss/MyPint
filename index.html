@@ -412,93 +412,8 @@
 <body>
 
   <div class="wrapper">
-    
-    <!-- SECTION 1: YouTube Thumbnail Link Generator (pintonly untouched at the top) -->
-    <section class="card">
-      <h2 class="sec1-h2">YouTube Thumbnail Link Generator</h2>
 
-      <div class="sec1-input-group">
-        <input type="text" id="youtubeUrl" class="sec1-input" placeholder="Paste YouTube URL here (e.g., https://www.youtube.com/watch?v=InzMHNL1eeo)" />
-        <button class="sec1-btn" onclick="generateThumbnail()">Generate</button>
-      </div>
-
-      <div id="errorMessage" class="error">Invalid YouTube URL. Please try again.</div>
-
-      <div id="resultBox" class="sec1-result">
-        
-        <!-- Fetched Title Section -->
-        <strong style="font-size: 14px;">Title:</strong>
-        <div class="output-wrapper">
-          <input type="text" id="sec1Title" class="sec1-input" readonly />
-          <button class="action-icon-btn" onclick="copyText('sec1Title')" title="Copy Title">
-            <svg viewBox="0 0 24 24">
-              <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-            </svg>
-          </button>
-        </div>
-
-        <div class="controls-bar">
-          <span style="font-weight: 600; font-size: 14px;">Aspect Ratio:</span>
-          <div class="ratio-options">
-            <label>
-              <input type="radio" name="aspectRatio" value="16:9" onchange="updateAspectMode()" />
-              16:9 (Original)
-            </label>
-            <label>
-              <input type="radio" name="aspectRatio" value="2:3-blur" onchange="updateAspectMode()" />
-              2:3 (Pinterest Blur)
-            </label>
-            <label>
-              <input type="radio" name="aspectRatio" value="2:3-white" onchange="updateAspectMode()" />
-              2:3 (Pinterest White)
-            </label>
-            <label>
-              <input type="radio" name="aspectRatio" value="1:1" onchange="updateAspectMode()" />
-              1:1 (Square Pad)
-            </label>
-            <label>
-              <input type="radio" name="aspectRatio" value="1:1-blur" checked onchange="updateAspectMode()" />
-              1:1 (Square Blur)
-            </label>
-          </div>
-        </div>
-
-        <strong>Generated Image URL:</strong>
-        
-        <div class="output-wrapper">
-          <div id="imageUrlText" class="link-box"></div>
-          
-          <a id="externalIconLink" class="action-icon-btn" href="" target="_blank" rel="noopener noreferrer" title="Open Image in New Tab">
-            <svg viewBox="0 0 24 24">
-              <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
-            </svg>
-          </a>
-
-          <a class="action-icon-btn pinterest-btn" href="https://www.pinterest.com/pin-creation-tool" target="_blank" rel="noopener noreferrer" title="Open Pinterest Pin Creation Tool">
-            <svg viewBox="0 0 24 24">
-              <path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/>
-            </svg>
-          </a>
-
-          <button id="downloadBtn" class="action-icon-btn" onclick="downloadImage()" title="Download Image">
-            <svg viewBox="0 0 24 24">
-              <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-            </svg>
-          </button>
-        </div>
-
-        <div class="preview-container">
-          <a id="imageLink" href="" target="_blank" rel="noopener noreferrer">
-            <div id="previewWrapper" class="">
-              <img id="blurBgImg" class="blur-bg" src="" alt="" style="display: none;" />
-              <img id="thumbnailImg" class="thumbnail-preview ratio-1-1-blur" src="" alt="YouTube Thumbnail Preview" crossorigin="anonymous" />
-            </div>
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- SECTION 2: Video Info Tool (Merged from Desc.html) -->
+    <!-- SECTION: Video Info Tool -->
     <section class="card">
       <h2 class="sec-h2">YouTube Info Fetcher</h2>
 
@@ -536,6 +451,67 @@
               <svg viewBox="0 0 24 24"><path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2.1l1.1-3h4.6l1.1 3H23l-4.5-12zm-2.62 7l1.62-4.41L19.12 17h-3.24z"/></svg>
             </button>
           </div>
+        </div>
+
+        <!-- Aspect Ratio Controls -->
+        <div class="controls-bar">
+          <span style="font-weight: 600; font-size: 14px;">Aspect Ratio:</span>
+          <div class="ratio-options">
+            <label>
+              <input type="radio" name="aspectRatio" value="16:9" onchange="updateAspectMode()" />
+              16:9 (Original)
+            </label>
+            <label>
+              <input type="radio" name="aspectRatio" value="2:3-blur" onchange="updateAspectMode()" />
+              2:3 (Pinterest Blur)
+            </label>
+            <label>
+              <input type="radio" name="aspectRatio" value="2:3-white" onchange="updateAspectMode()" />
+              2:3 (Pinterest White)
+            </label>
+            <label>
+              <input type="radio" name="aspectRatio" value="1:1" onchange="updateAspectMode()" />
+              1:1 (Square Pad)
+            </label>
+            <label>
+              <input type="radio" name="aspectRatio" value="1:1-blur" checked onchange="updateAspectMode()" />
+              1:1 (Square Blur)
+            </label>
+          </div>
+        </div>
+
+        <!-- Generated Image URL -->
+        <strong>Generated Image URL:</strong>
+        
+        <div class="output-wrapper">
+          <div id="imageUrlText" class="link-box"></div>
+          
+          <a id="externalIconLink" class="action-icon-btn" href="" target="_blank" rel="noopener noreferrer" title="Open Image in New Tab">
+            <svg viewBox="0 0 24 24">
+              <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
+            </svg>
+          </a>
+
+          <a class="action-icon-btn pinterest-btn" href="https://www.pinterest.com/pin-creation-tool" target="_blank" rel="noopener noreferrer" title="Open Pinterest Pin Creation Tool">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/>
+            </svg>
+          </a>
+
+          <button id="downloadBtn" class="action-icon-btn" onclick="downloadImage()" title="Download Image">
+            <svg viewBox="0 0 24 24">
+              <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="preview-container">
+          <a id="imageLink" href="" target="_blank" rel="noopener noreferrer">
+            <div id="previewWrapper" class="">
+              <img id="blurBgImg" class="blur-bg" src="" alt="" style="display: none;" />
+              <img id="thumbnailImg" class="thumbnail-preview ratio-1-1-blur" src="" alt="YouTube Thumbnail Preview" crossorigin="anonymous" />
+            </div>
+          </a>
         </div>
       </div>
     </section>
