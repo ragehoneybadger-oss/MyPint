@@ -36,20 +36,6 @@
       width: 100%;
     }
 
-    /* Section 1 Styling */
-    .sec1-h2 {
-      margin-top: 0;
-      color: #1a1a1a;
-      font-size: 1.5rem;
-      text-align: center;
-    }
-
-    .sec1-input-group {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-    }
-
     .sec1-input {
       flex: 1;
       padding: 12px 16px;
@@ -64,33 +50,11 @@
       border-color: #ff0000;
     }
 
-    .sec1-btn {
-      padding: 12px 20px;
-      background-color: #ff0000;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-
-    .sec1-btn:hover {
-      background-color: #cc0000;
-    }
-
     .error {
       color: #d93025;
       font-size: 14px;
       margin-top: 10px;
       display: none;
-    }
-
-    .sec1-result {
-      margin-top: 25px;
-      display: none;
-      flex-direction: column;
-      gap: 15px;
     }
 
     .controls-bar {
@@ -288,7 +252,6 @@
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
 
-    /* Toast Banner Styling */
     .toast-banner {
       position: fixed;
       bottom: 20px;
@@ -318,7 +281,6 @@
       font-weight: 600;
     }
 
-    /* Additional styles merged from Desc.html */
     .sec-h2 {
       margin-top: 0;
       color: #ff0000;
@@ -412,6 +374,11 @@
 <body>
 
   <div class="wrapper">
+    <!-- Hidden input to bridge section 1 thumbnail script -->
+    <input type="hidden" id="youtubeUrl" />
+    <input type="hidden" id="sec1Title" />
+    <div id="errorMessage" style="display:none;"></div>
+    <div id="resultBox" style="display:none;"></div>
 
     <!-- SECTION: Video Info Tool -->
     <section class="card">
@@ -854,6 +821,12 @@
 
       errorMessage.style.display = 'none';
       resultsContainer.style.display = 'none';
+
+      // Link input to generateThumbnail script
+      document.getElementById('youtubeUrl').value = urlInput;
+      if (typeof generateThumbnail === 'function') {
+        generateThumbnail();
+      }
 
       const videoId = extractVideoIDForDesc(urlInput);
 
