@@ -366,7 +366,8 @@
       gap: 8px;
     }
 
-    .field-with-btn .main-input {
+    .field-with-btn .main-input,
+    .field-with-btn textarea {
       flex: 1;
     }
 
@@ -386,6 +387,92 @@
       white-space: pre-wrap;
       font-size: 14px;
       color: #555;
+    }
+
+    /* Share to X Component Styling */
+    .sec2-h2 {
+      margin-top: 0;
+      color: #1a1a1a;
+      font-size: 1.25rem;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    .form-group input, 
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 0.95rem;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      height: 80px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .button-group button {
+      flex: 1;
+      padding: 12px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      border: none;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    .btn-share {
+      background-color: #000000;
+      color: #ffffff;
+    }
+
+    .btn-share:hover {
+      background-color: #1a1a1a;
+    }
+
+    .btn-copy {
+      background-color: #e9ecef;
+      color: #333333;
+      border: 1px solid #ced4da;
+    }
+
+    .btn-copy:hover {
+      background-color: #dee2e6;
+    }
+
+    .btn-copy.copied {
+      background-color: #28a745;
+      color: #ffffff;
+      border-color: #28a745;
+    }
+
+    .icon {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
     }
   </style>
 </head>
@@ -514,6 +601,44 @@
             </button>
             <button class="action-icon-btn" id="btnTranslateDesc" onclick="translateText('videoDescription', this)" title="Translate Description to English">
               <svg viewBox="0 0 24 24"><path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2.1l1.1-3h4.6l1.1 3H23l-4.5-12zm-2.62 7l1.62-4.41L19.12 17h-3.24z"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- SECTION: Share YouTube Video to X -->
+        <div class="info-row" style="margin-top: 10px; border-top: 1px solid #eee; padding-top: 15px;">
+          <h2 class="sec2-h2">Share YouTube Video to 𝕏</h2>
+          
+          <div class="form-group">
+            <label for="ytUrlX">YouTube Video URL:</label>
+            <div class="field-with-btn">
+              <input type="text" id="ytUrlX" placeholder="https://youtu.be/DXStTwh9SSA or https://www.youtube.com/watch?v=..." oninput="fetchTitleForSec2()" />
+              <button class="action-icon-btn" onclick="copyInputValue('ytUrlX')" title="Copy YouTube URL">
+                <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="postText">Post Text (Video Title / Description):</label>
+            <div class="field-with-btn">
+              <textarea id="postText" placeholder="Enter video title or caption..."></textarea>
+              <button class="action-icon-btn" onclick="copyInputValue('postText')" title="Copy Post Text">
+                <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="button-group">
+            <button class="btn-copy" id="copyBtn" onclick="copyShareUrl()">
+              <svg class="icon" viewBox="0 0 24 24">
+                <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+              </svg>
+              <span id="copyBtnText">Copy Link</span>
+            </button>
+
+            <button class="btn-share" onclick="shareToX()">
+              Share on 𝕏
             </button>
           </div>
         </div>
@@ -796,6 +921,8 @@
       document.getElementById('videoTitleInput').value = '';
       document.getElementById('videoDescription').textContent = '';
       document.getElementById('imageUrlText').textContent = '';
+      document.getElementById('ytUrlX').value = '';
+      document.getElementById('postText').value = '';
 
       // Clear Images
       document.getElementById('thumbnailImg').src = '';
@@ -841,8 +968,14 @@
 
     function copyInputValue(elementId) {
       const element = document.getElementById(elementId);
-      element.select();
-      navigator.clipboard.writeText(element.value);
+      if (!element) return;
+      
+      const textToCopy = element.value !== undefined ? element.value : element.innerText;
+      if (element.select) {
+        element.select();
+      }
+      
+      navigator.clipboard.writeText(textToCopy);
       showToastMsg("copied");
     }
 
@@ -934,13 +1067,21 @@
           const item = data.items[0];
           document.getElementById('videoTitleInput').value = item.snippet.title;
           document.getElementById('videoDescription').textContent = item.snippet.description || "No description available.";
+          
+          // Auto-populate Share to X fields
+          document.getElementById('ytUrlX').value = `https://www.youtube.com/watch?v=${videoId}`;
+          document.getElementById('postText').value = item.snippet.title;
         } else {
           const oembedResp = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`);
           if (oembedResp.ok) {
             const oembedData = await oembedResp.json();
             document.getElementById('videoTitleInput').value = oembedData.title;
+            document.getElementById('ytUrlX').value = `https://www.youtube.com/watch?v=${videoId}`;
+            document.getElementById('postText').value = oembedData.title;
           } else {
             document.getElementById('videoTitleInput').value = "YouTube Video";
+            document.getElementById('ytUrlX').value = urlInput;
+            document.getElementById('postText').value = "YouTube Video";
           }
           document.getElementById('videoDescription').textContent = "No description available.";
         }
@@ -952,6 +1093,83 @@
         errorMessage.textContent = "An error occurred while fetching video details.";
         errorMessage.style.display = 'block';
       }
+    }
+
+    /* SCRIPT (Share to X) */
+    let titleFetchDebounceTimeout;
+
+    async function fetchTitleForSec2() {
+      clearTimeout(titleFetchDebounceTimeout);
+      titleFetchDebounceTimeout = setTimeout(async () => {
+        const urlInput = document.getElementById('ytUrlX').value.trim();
+        const postTextArea = document.getElementById('postText');
+        const videoId = extractVideoIDForDesc(urlInput);
+
+        if (!videoId) return;
+
+        try {
+          const response = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.title) {
+              postTextArea.value = data.title;
+            }
+          }
+        } catch (e) {
+          console.error("Failed to fetch YouTube title:", e);
+        }
+      }, 300);
+    }
+
+    function generateShareUrl() {
+      const urlInput = document.getElementById('ytUrlX').value.trim();
+      const textInput = document.getElementById('postText').value.trim();
+
+      if (!urlInput) {
+        alert("Please enter a valid YouTube URL.");
+        return null;
+      }
+
+      const encodedUrl = encodeURIComponent(urlInput);
+      const encodedText = encodeURIComponent(textInput);
+
+      let shareUrl = `https://x.com/intent/post?url=${encodedUrl}`;
+
+      if (textInput) {
+        shareUrl += `&text=${encodedText}`;
+      }
+
+      shareUrl += `&via=YouTube&related=YouTube%2CYouTubeTrends%2CYTCreators`;
+
+      return shareUrl;
+    }
+
+    function shareToX() {
+      const shareUrl = generateShareUrl();
+      if (shareUrl) {
+        window.open(shareUrl, '_blank', 'width=600,height=400,resizable=yes,scrollbars=yes');
+      }
+    }
+
+    function copyShareUrl() {
+      const shareUrl = generateShareUrl();
+      if (!shareUrl) return;
+
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        const copyBtn = document.getElementById('copyBtn');
+        const copyBtnText = document.getElementById('copyBtnText');
+
+        copyBtn.classList.add('copied');
+        copyBtnText.textContent = 'Copied!';
+
+        setTimeout(() => {
+          copyBtn.classList.remove('copied');
+          copyBtnText.textContent = 'Copy Link';
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy: ', err);
+        alert('Failed to copy the link.');
+      });
     }
   </script>
 
