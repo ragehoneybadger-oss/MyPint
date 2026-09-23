@@ -877,7 +877,8 @@
     }
 
     function updateAspectMode() {
-      const selectedRatio = document.querySelector('input[name="aspectRatio"]:checked').value;
+      const selectedRadio = document.querySelector('input[name="aspectRatio"]:checked');
+      const selectedRatio = selectedRadio ? selectedRadio.value : '1:1-blur';
       const thumbnailImg = document.getElementById('thumbnailImg');
       const blurBgImg = document.getElementById('blurBgImg');
       const previewWrapper = document.getElementById('previewWrapper');
@@ -1098,13 +1099,23 @@
         cropper = null;
       }
 
-      // Reset Radio Buttons to Defaults
+      // Reset Quality Radio Button to Max Resolution
       const resQualityMax = document.querySelector('input[name="resQuality"][value="maxresdefault"]');
       if (resQualityMax) resQualityMax.checked = true;
 
-      const aspect16_9 = document.querySelector('input[name="aspectRatio"][value="16:9"]');
-      if (aspect16_9) aspect16_9.checked = true;
+      // 1. Uncheck all aspect ratio options first
+      const aspectRadios = document.querySelectorAll('input[name="aspectRatio"]');
+      aspectRadios.forEach((radio) => {
+        radio.checked = false;
+      });
 
+      // 2. Explicitly check the 1:1 (Square Blur) radio option
+      const aspectSquareBlur = document.querySelector('input[name="aspectRatio"][value="1:1-blur"]');
+      if (aspectSquareBlur) {
+        aspectSquareBlur.checked = true;
+      }
+
+      // 3. Trigger UI styling update to reflect 1:1 Blur mode
       updateAspectMode();
 
       // Hide Results and Error Containers
