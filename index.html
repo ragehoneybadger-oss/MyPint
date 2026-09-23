@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>YouTube Thumbnail & Video Info Tool</title>
+  <!-- Cropper.js CSS for manual cropping -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
   <style>
     * {
       box-sizing: border-box;
@@ -474,6 +476,83 @@
       height: 18px;
       fill: currentColor;
     }
+
+    /* Manual Crop Modal Styling */
+    .crop-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .crop-modal-content {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 650px;
+      width: 90%;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+
+    .crop-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    .crop-container {
+      max-height: 450px;
+      width: 100%;
+      overflow: hidden;
+      background: #000;
+      border-radius: 6px;
+    }
+
+    .crop-container img {
+      max-width: 100%;
+      display: block;
+    }
+
+    .crop-modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .btn-modal {
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      font-size: 14px;
+    }
+
+    .btn-modal-cancel {
+      background-color: #e0e0e0;
+      color: #333;
+    }
+
+    .btn-modal-apply {
+      background-color: #ff0000;
+      color: #fff;
+    }
+
+    .btn-modal-apply:hover {
+      background-color: #cc0000;
+    }
   </style>
 </head>
 <body>
@@ -562,6 +641,12 @@
         <div class="output-wrapper">
           <div id="imageUrlText" class="link-box"></div>
           
+          <button class="action-icon-btn" onclick="openCropModal()" title="Manually Crop Image">
+            <svg viewBox="0 0 24 24">
+              <path d="M17 15h2V7c0-1.1-.9-2-2-2H9v2h8v8zM7 17V1H5v4H1v2h4v10c0 1.1.9 2 2 2h10v4h2v-4h4v-2H7z"/>
+            </svg>
+          </button>
+
           <a id="externalIconLink" class="action-icon-btn" href="" target="_blank" rel="noopener noreferrer" title="Open Image in New Tab">
             <svg viewBox="0 0 24 24">
               <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
@@ -650,6 +735,23 @@
 
   <div id="toast" class="toast-banner"><mark id="toastText">copied</mark></div>
 
+  <!-- Manual Crop Modal -->
+  <div id="cropModal" class="crop-modal">
+    <div class="crop-modal-content">
+      <div class="crop-modal-header">
+        <span>Crop Image</span>
+        <button onclick="closeCropModal()" style="background:none; border:none; font-size: 20px; cursor:pointer;">&times;</button>
+      </div>
+      <div class="crop-container">
+        <img id="cropImage" src="" alt="Crop Target" />
+      </div>
+      <div class="crop-modal-footer">
+        <button class="btn-modal btn-modal-cancel" onclick="closeCropModal()">Cancel</button>
+        <button class="btn-modal btn-modal-apply" onclick="applyManualCrop()">Apply Crop</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Floating Reset Button -->
   <button class="reset-floating-btn" onclick="resetForm()" title="Reset All Form Data">
     <svg viewBox="0 0 24 24">
@@ -657,12 +759,17 @@
     </svg>
   </button>
 
+  <!-- Cropper.js Script -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
   <!-- SCRIPT SECTION 1 -->
   <script>
     let currentImageUrl = '';
+    let rawImageUrl = '';
     let currentVideoId = '';
     let isCroppedImage = false;
     let toastTimeout;
+    let cropper = null;
 
     function showToast() {
       const toast = document.getElementById('toast');
@@ -716,6 +823,7 @@
         const hqResUrl = `https://img.youtube.com/vi/${currentVideoId}/hqdefault.jpg`;
 
         const setThumbnailSources = (url, displayUrl = url, isCropped = false) => {
+          rawImageUrl = displayUrl;
           currentImageUrl = url;
           isCroppedImage = isCropped;
           imageUrlText.textContent = displayUrl;
@@ -868,7 +976,7 @@
       if (!currentImageUrl) return;
 
       const selectedRatio = document.querySelector('input[name="aspectRatio"]:checked').value;
-      const needsCanvas = selectedRatio !== '16:9' || isCroppedImage;
+      const needsCanvas = selectedRatio !== '16:9';
       
       let ratioLabel = '16x9';
       if (selectedRatio === '1:1') ratioLabel = '1x1_padded';
@@ -913,6 +1021,54 @@
       }
     }
 
+    /* Manual Crop Modal Logic */
+    function openCropModal() {
+      if (!currentImageUrl) return;
+      const cropModal = document.getElementById('cropModal');
+      const cropImage = document.getElementById('cropImage');
+      
+      const sourceImage = rawImageUrl || currentImageUrl;
+      cropImage.src = sourceImage;
+      cropModal.style.display = 'flex';
+
+      if (cropper) {
+        cropper.destroy();
+      }
+
+      cropper = new Cropper(cropImage, {
+        viewMode: 1,
+        autoCropArea: 0.8,
+        responsive: true
+      });
+    }
+
+    function closeCropModal() {
+      const cropModal = document.getElementById('cropModal');
+      cropModal.style.display = 'none';
+      if (cropper) {
+        cropper.destroy();
+        cropper = null;
+      }
+    }
+
+    function applyManualCrop() {
+      if (!cropper) return;
+      const croppedCanvas = cropper.getCroppedCanvas();
+      if (croppedCanvas) {
+        const croppedDataUrl = croppedCanvas.toDataURL('image/jpeg', 0.92);
+        
+        currentImageUrl = croppedDataUrl;
+        isCroppedImage = true;
+
+        document.getElementById('thumbnailImg').src = croppedDataUrl;
+        document.getElementById('blurBgImg').src = croppedDataUrl;
+        document.getElementById('imageLink').href = croppedDataUrl;
+
+        showToastMsg("Manual crop applied");
+      }
+      closeCropModal();
+    }
+
     function resetForm() {
       // Clear Input Fields
       document.getElementById('descYoutubeUrl').value = '';
@@ -932,15 +1088,24 @@
 
       // Reset State Variables
       currentImageUrl = '';
+      rawImageUrl = '';
       currentVideoId = '';
       isCroppedImage = false;
+
+      // Destroy active cropper instance if open
+      if (cropper) {
+        cropper.destroy();
+        cropper = null;
+      }
 
       // Reset Radio Buttons to Defaults
       const resQualityMax = document.querySelector('input[name="resQuality"][value="maxresdefault"]');
       if (resQualityMax) resQualityMax.checked = true;
 
-      const aspect11Blur = document.querySelector('input[name="aspectRatio"][value="1:1-blur"]');
-      if (aspect11Blur) aspect11Blur.checked = true;
+      const aspect16_9 = document.querySelector('input[name="aspectRatio"][value="16:9"]');
+      if (aspect16_9) aspect16_9.checked = true;
+
+      updateAspectMode();
 
       // Hide Results and Error Containers
       document.getElementById('resultsContainer').style.display = 'none';
