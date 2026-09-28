@@ -814,7 +814,7 @@
       const externalIconLink = document.getElementById('externalIconLink');
       
       const chosenResElem = document.querySelector('input[name="resQuality"]:checked');
-      const chosenRes = chosenResElem ? chosenResElem.value : 'maxresdefault';
+      const chosenRes = chosenResElem ? chosenResElem.value : 'hqdefault';
 
       currentVideoId = extractVideoID(urlInput);
 
@@ -1099,9 +1099,9 @@
         cropper = null;
       }
 
-      // Reset Quality Radio Button to Max Resolution
-      const resQualityMax = document.querySelector('input[name="resQuality"][value="maxresdefault"]');
-      if (resQualityMax) resQualityMax.checked = true;
+      // Reset Quality Radio Button to High Quality
+      const resQualityHQ = document.querySelector('input[name="resQuality"][value="hqdefault"]');
+      if (resQualityHQ) resQualityHQ.checked = true;
 
       // 1. Uncheck all aspect ratio options first
       const aspectRadios = document.querySelectorAll('input[name="aspectRatio"]');
